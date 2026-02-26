@@ -29,12 +29,19 @@ app.get('/player/:userId', async (req, res) => {
   }
 });
 
-app.post('/player/:userId', async (req, res) => {
+app.get('/global/:docId', async (req, res) => {
   try {
-    const userId = req.params.userId;
-    await db.collection('players').doc(userId).set(req.body, { merge: true });
-    res.json({ success: true });
+    const docId = req.params.docId;
+    const docRef = db.collection('global').doc(docId);
+    const doc = await docRef.get();
+    
+    if (!doc.exists) {
+      return res.json({});
+    }
+    
+    res.json(doc.data());
   } catch (error) {
+    console.error("❌ Ошибка:", error);
     res.status(500).json({ error: error.message });
   }
 });
