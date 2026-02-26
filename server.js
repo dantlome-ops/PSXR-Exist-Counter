@@ -1,54 +1,42 @@
 const express = require('express');
-const admin = require('firebase-admin');
-const cors = require('cors');
-
 const app = express();
-app.use(cors());
 app.use(express.json());
 
-try {
-  const serviceAccount = JSON.parse(process.env.PSXR_DANTLOME_EXISTS);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-  console.log("✅ Firestore connected!");
-} catch (e) {
-  console.error("❌ Failed to parse service account:", e.message);
-}
-
-const db = admin.firestore();
-
-app.get('/global/global_exist_counts', async (req, res) => {
-  try {
-    const docRef = db.collection('global').doc('global_exist_counts');
-    const doc = await docRef.get();
-    res.json(doc.exists ? doc.data() : {});
-  } catch (error) {
-    console.error("❌ Ошибка GET:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/global/global_exist_counts', async (req, res) => {
-  try {
-    const data = req.body;
-    console.log("📥 Получены данные:", data);
-    
-    const docRef = db.collection('global').doc('global_exist_counts');
-    await docRef.set(data, { merge: true });
-    
-    res.json({ success: true });
-  } catch (error) {
-    console.error("❌ Ошибка POST:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
+// Хранилище данных прямо в памяти сервера
+let globalData = {
+    "test": "1"
+};
 
 app.get('/', (req, res) => {
-  res.send('✅ PSXR Server is running!');
+    res.send('✅ PSXR Server is running!');
+});
+
+// GET - получить все экзисты
+app.get('/global/global_exist_counts', (req, res) => {
+    console.log("📤 Отправляем данные:", globalData);
+    res.json(globalData);
+});
+
+// POST - обновить экзисты
+app.post('/global/global_exist_counts', (req, res) => {
+    try {
+        const newData = req.body;
+        console.log("📥 Получены новые данные:", newData);
+        
+        // Обновляем данные (мержим)
+        for (let key in newData) {
+            globalData[key] = newData[key];
+        }
+        
+        console.log("✅ Данные обновлены:", globalData);
+        res.json({ success: true, data: globalData });
+    } catch (error) {
+        console.error("❌ Ошибка:", error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Сервер запущен на порту ${PORT}`);
 });
