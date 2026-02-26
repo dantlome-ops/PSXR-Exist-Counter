@@ -18,67 +18,13 @@ try {
 
 const db = admin.firestore();
 
-app.get('/player/:userId', async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const docRef = db.collection('players').doc(userId);
-    const doc = await docRef.get();
-    res.json(doc.exists ? doc.data() : {});
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/player/:userId', async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    await db.collection('players').doc(userId).set(req.body, { merge: true });
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get('/global/:docId', async (req, res) => {
-  try {
-    const docId = req.params.docId;
-    const docRef = db.collection('global').doc(docId);
-    const doc = await docRef.get();
-    
-    if (!doc.exists) {
-      return res.json({});
-    }
-    
-    res.json(doc.data());
-  } catch (error) {
-    console.error("❌ Ошибка GET:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/global/:docId', async (req, res) => {
-  try {
-    const docId = req.params.docId;
-    const data = req.body;
-    console.log("📥 Получены данные для", docId, ":", data);
-    
-    const docRef = db.collection('global').doc(docId);
-    await docRef.set(data, { merge: true });
-    
-    res.json({ success: true, received: data });
-  } catch (error) {
-    console.error("❌ Ошибка POST:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 app.get('/global/global_exist_counts', async (req, res) => {
   try {
     const docRef = db.collection('global').doc('global_exist_counts');
     const doc = await docRef.get();
     res.json(doc.exists ? doc.data() : {});
   } catch (error) {
-    console.error("❌ Ошибка GET global_exist_counts:", error);
+    console.error("❌ Ошибка GET:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -86,14 +32,14 @@ app.get('/global/global_exist_counts', async (req, res) => {
 app.post('/global/global_exist_counts', async (req, res) => {
   try {
     const data = req.body;
-    console.log("📥 Получены данные для global_exist_counts:", data);
+    console.log("📥 Получены данные:", data);
     
     const docRef = db.collection('global').doc('global_exist_counts');
     await docRef.set(data, { merge: true });
     
-    res.json({ success: true, received: data });
+    res.json({ success: true });
   } catch (error) {
-    console.error("❌ Ошибка POST global_exist_counts:", error);
+    console.error("❌ Ошибка POST:", error);
     res.status(500).json({ error: error.message });
   }
 });
