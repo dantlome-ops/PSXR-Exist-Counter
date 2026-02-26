@@ -39,6 +39,16 @@ app.post('/player/:userId', async (req, res) => {
   }
 });
 
+app.get('/global/global_exist_counts', async (req, res) => {
+  try {
+    const docRef = db.collection('global').doc('global_exist_counts');
+    const doc = await docRef.get();
+    res.json(doc.exists ? doc.data() : {});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.send('✅ PSXR Server is running!');
 });
