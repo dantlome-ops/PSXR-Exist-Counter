@@ -29,6 +29,16 @@ app.get('/player/:userId', async (req, res) => {
   }
 });
 
+app.post('/player/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    await db.collection('players').doc(userId).set(req.body, { merge: true });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/global/:docId', async (req, res) => {
   try {
     const docId = req.params.docId;
@@ -42,6 +52,18 @@ app.get('/global/:docId', async (req, res) => {
     res.json(doc.data());
   } catch (error) {
     console.error("❌ Ошибка:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/global/:docId', async (req, res) => {
+  try {
+    const docId = req.params.docId;
+    const data = req.body;
+    await db.collection('global').doc(docId).set(data, { merge: true });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("❌ Ошибка сохранения:", error);
     res.status(500).json({ error: error.message });
   }
 });
